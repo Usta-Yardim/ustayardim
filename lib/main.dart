@@ -2,10 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ustayardim/auth/auth_screen.dart';
 import 'package:ustayardim/global/global.dart';
+import 'package:ustayardim/helpers/adress_helper.dart';
+import 'package:ustayardim/helpers/banner_helper.dart';
+import 'package:ustayardim/helpers/bottom_navigation_helper.dart';
 import 'package:ustayardim/helpers/categories_helper.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
+import 'package:ustayardim/screens/client/client_main_page.dart';
 import 'package:ustayardim/theme/theme.dart';
 
 void main() {
@@ -19,7 +24,10 @@ class UstaYardim extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<CategoriesHelper>(create: (_)=>CategoriesHelper()),
+        ChangeNotifierProvider<CategoriesHelper>(create: (_) => CategoriesHelper()),
+        ChangeNotifierProvider<BannerHelper>(create: (_) => BannerHelper()),
+        ChangeNotifierProvider<BottomNavigationHelper>(create: (_) => BottomNavigationHelper()),
+        ChangeNotifierProvider<AdressHelper>(create: (_) => AdressHelper())
       ],
       child: MaterialApp(
         title: 'Usta Yardım',
@@ -40,19 +48,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
-  void initState(){
-
+  void initState() {
     _startTimer();
     super.initState();
-
   }
 
-  _startTimer(){
-    Timer(const Duration(seconds: 3), () {
+  _startTimer() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
 
-      NavigatorHelper.push(destination: AuthScreen());
+    token = pref.getString("token");
+
+    Timer(const Duration(seconds: 3), () {
+      if (token != null) {
+        NavigatorHelper.push(destination: ClientMainPage());
+      } else {
+        NavigatorHelper.push(destination: AuthScreen());
+      }
     });
   }
 
@@ -61,9 +73,34 @@ class _MyHomePageState extends State<MyHomePage> {
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     padding = MediaQuery.of(context).padding;
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text("SPLASH")
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              "assets/images/logo.png",
+              width: width * 0.5,
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              width: width * 0.5,
+              child: FittedBox(
+                child: Text(
+                  "Usta Yardım",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff393e41),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

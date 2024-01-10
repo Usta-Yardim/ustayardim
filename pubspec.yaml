@@ -37,6 +37,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   sticky_headers: ^0.3.0+2
   provider: ^6.0.5
+  url_launcher: ^6.2.1
+  carousel_slider: ^4.2.1
+  http: ^1.1.2
+  shared_preferences: ^2.2.2
+  font_awesome_flutter: ^10.6.0
 
 dev_dependencies:
   flutter_test:

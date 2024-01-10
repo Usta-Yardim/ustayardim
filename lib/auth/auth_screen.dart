@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/screens/client/client_main_page.dart';
 import 'package:ustayardim/theme/theme.dart';
+import 'package:http/http.dart' as http;
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,12 +18,10 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  ValueNotifier<UserType> selectedUserType =
-      ValueNotifier<UserType>(UserType.CLIENT);
+  ValueNotifier<UserType> selectedUserType = ValueNotifier<UserType>(UserType.CLIENT);
   ValueNotifier<bool> obscureText = ValueNotifier(true);
   TextEditingController mailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
 
   @override
   void dispose() {
@@ -29,14 +30,77 @@ class _AuthScreenState extends State<AuthScreen> {
     super.dispose();
   }
 
+  _register() async {
+    final response = await http.post(Uri.parse("http://localhost:5120/api/Users/register"),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "fullname": "dsdasdsadas",
+          "email": mailController.text,
+          "phoneNumber": "05510786543",
+          "userType": selectedUserType.value == UserType.CLIENT ? "musteri" : "usta",
+          "password": passwordController.text,
+        }));
+
+    if (response.statusCode == 200) {
+      var json = jsonDecode(response.body);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      prefs.setString("token", json["token"]);
+
+      token = json["token"];
+
+      NavigatorHelper.push(destination: ClientMainPage());
+
+      print("ok");
+      print(json["token"]);
+    } else {
+      print(response.body);
+      print(response.statusCode);
+    }
+  }
+
+  _login() async {
+    NavigatorHelper.pushAndRemoveUntil(destination: ClientMainPage());
+
+    /*final response = await http.post(Uri.parse("http://localhost:5120/api/Users/login"),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "email": mailController.text,
+          "password": passwordController.text,
+          "userType": selectedUserType.value == UserType.CLIENT ? "musteri" : "usta",
+          //"rememberMe": true
+        }));
+
+    if (response.statusCode == 200) {
+      var json = jsonDecode(response.body);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      prefs.setString("token", json["token"]);
+
+      token = json["token"];
+
+      NavigatorHelper.push(destination: ClientMainPage());
+
+      print("ok");
+      print(json["token"]);
+    } else {
+      print(response.body);
+      print(response.statusCode);
+    }*/
+  }
+
   Widget _buildSelectUserTypeWidget() {
     return Container(
       width: width * 0.9,
       height: 50,
       padding: EdgeInsets.all(8),
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20), color: Color(0xffFFCF8A)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Color(0xffFFCF8A)),
       child: Stack(
         children: [
           Row(
@@ -127,9 +191,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 onTap: () {
                                   obscureText.value = !obscureText.value;
                                 },
-                                child: Icon(!obscure
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
+                                child: Icon(!obscure ? Icons.visibility : Icons.visibility_off),
                               )),
                           obscureText: obscure,
                         );
@@ -166,9 +228,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 onTap: () {
                                   obscureText.value = !obscureText.value;
                                 },
-                                child: Icon(!obscure
-                                    ? Icons.visibility
-                                    : Icons.visibility_off),
+                                child: Icon(!obscure ? Icons.visibility : Icons.visibility_off),
                               )),
                           obscureText: obscure,
                         );
@@ -193,8 +253,7 @@ class _AuthScreenState extends State<AuthScreen> {
               children: [
                 Text(
                   "Usta Yardım'a\nHoş Geldiniz!",
-                  style: mainThemeData.primaryTextTheme.titleLarge!
-                      .copyWith(fontSize: 28),
+                  style: mainThemeData.primaryTextTheme.titleLarge!.copyWith(fontSize: 28),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(
@@ -210,33 +269,45 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    NavigatorHelper.push(destination: ClientMainPage());
+                    _login();
+                    //NavigatorHelper.push(destination: ClientMainPage());
                   },
-                  style: ElevatedButton.styleFrom(
-                      fixedSize: Size(width * 0.9, 60)),
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.9, 60)),
                   child: Text(
                     "Giriş Yap",
-                    style: mainThemeData.primaryTextTheme.titleMedium!
-                        .copyWith(color: Colors.white),
+                    style:
+                        mainThemeData.primaryTextTheme.titleMedium!.copyWith(color: Colors.white),
                   ),
                 ),
-                SizedBox(height: 30,),
+                SizedBox(
+                  height: 30,
+                ),
                 Row(
                   children: [
-                    Expanded(child: Divider(endIndent: 20,)),
-                    Text("veya",style: mainThemeData.primaryTextTheme.titleSmall,),
-                    Expanded(child: Divider(indent: 20,))
+                    Expanded(
+                        child: Divider(
+                      endIndent: 20,
+                    )),
+                    Text(
+                      "veya",
+                      style: mainThemeData.primaryTextTheme.titleSmall,
+                    ),
+                    Expanded(
+                        child: Divider(
+                      indent: 20,
+                    ))
                   ],
                 ),
-                SizedBox(height: 30,),
+                SizedBox(
+                  height: 30,
+                ),
                 ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                      fixedSize: Size(width * 0.9, 60)),
+                  onPressed: _register,
+                  style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.9, 60)),
                   child: Text(
                     "Kayıt Ol",
-                    style: mainThemeData.primaryTextTheme.titleMedium!
-                        .copyWith(color: Colors.white),
+                    style:
+                        mainThemeData.primaryTextTheme.titleMedium!.copyWith(color: Colors.white),
                   ),
                 ),
               ],
