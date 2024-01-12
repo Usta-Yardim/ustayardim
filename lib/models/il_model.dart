@@ -7,4 +7,11 @@ class IlModel {
   static IlModel fromJson({required dynamic json}) {
     return IlModel(id: json["ilId"], name: json["ilAdi"]);
   }
+
+  Map<String,Object> toMap(){
+    return {
+      "ilId":id.toString(),
+      "ilAdi":name
+    };
+  }
 }

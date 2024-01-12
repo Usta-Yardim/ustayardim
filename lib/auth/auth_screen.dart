@@ -3,6 +3,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ustayardim/api/api.dart';
+import 'package:ustayardim/auth/signup_screen.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
@@ -48,6 +50,8 @@ class _AuthScreenState extends State<AuthScreen> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       prefs.setString("token", json["token"]);
+      prefs.setInt("userId", json["userId"]);
+
 
       token = json["token"];
 
@@ -61,37 +65,8 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  _login() async {
-    NavigatorHelper.pushAndRemoveUntil(destination: ClientMainPage());
-
-    /*final response = await http.post(Uri.parse("http://localhost:5120/api/Users/login"),
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "email": mailController.text,
-          "password": passwordController.text,
-          "userType": selectedUserType.value == UserType.CLIENT ? "musteri" : "usta",
-          //"rememberMe": true
-        }));
-
-    if (response.statusCode == 200) {
-      var json = jsonDecode(response.body);
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      prefs.setString("token", json["token"]);
-
-      token = json["token"];
-
-      NavigatorHelper.push(destination: ClientMainPage());
-
-      print("ok");
-      print(json["token"]);
-    } else {
-      print(response.body);
-      print(response.statusCode);
-    }*/
+  _login() {
+    Api.login(mail: mailController.text, password: passwordController.text, userType: selectedUserType.value);
   }
 
   Widget _buildSelectUserTypeWidget() {
@@ -302,7 +277,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   height: 30,
                 ),
                 ElevatedButton(
-                  onPressed: _register,
+                  onPressed: (){
+                    NavigatorHelper.push(destination: SignupScreen());
+                  },
                   style: ElevatedButton.styleFrom(fixedSize: Size(width * 0.9, 60)),
                   child: Text(
                     "Kayıt Ol",

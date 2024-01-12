@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:ustayardim/api/api.dart';
+import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
+import 'package:ustayardim/helpers/navigator_helper.dart';
+import 'package:ustayardim/helpers/snack_bar_helper.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -9,6 +13,20 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  TextEditingController oldPasswordController = TextEditingController();
+  TextEditingController newPasswordController = TextEditingController();
+  TextEditingController newPasswordAgainController = TextEditingController();
+
+  _update(){
+    if(newPasswordController.text != newPasswordAgainController.text){
+      SnackBarHelper.showSnackBar(content: "Yeni şifre tekrarı ile aynı olmalı.", type: SnackBarType.WARNING);
+      return;
+    }
+
+    Api.update(activePane: ActivePane.CHANGE_PASSWORD,oldPassword: oldPasswordController.text,newPassword: newPasswordController.text);
+    NavigatorHelper.pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +49,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              TextField(),
+              TextField(
+                controller: oldPasswordController,
+              ),
             ],
           ),
           SizedBox(
@@ -47,7 +67,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              TextField(),
+              TextField(
+                controller: newPasswordController,
+              ),
             ],
           ),
           SizedBox(
@@ -63,13 +85,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-              TextField(),
+              TextField(
+                controller: newPasswordAgainController,
+              ),
             ],
           ),
           SizedBox(
             height: 30,
           ),
-          ElevatedButton(onPressed: (){}, child: Text("Şifre Değiştir"))
+          ElevatedButton(onPressed: _update, child: Text("Şifre Değiştir"))
         ],
       ),
     );

@@ -1,8 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ustayardim/auth/auth_screen.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
+import 'package:ustayardim/helpers/user_helper.dart';
 import 'package:ustayardim/screens/client/change_password_screen.dart';
 import 'package:ustayardim/screens/client/edit_profile_screen.dart';
 import 'package:ustayardim/screens/client/gallery_screen.dart';
@@ -24,17 +28,28 @@ class _ProfileState extends State<Profile> {
         child: ListView(
       padding: EdgeInsets.symmetric(horizontal: width * 0.05),
       children: [
-        CircleAvatar(
-          radius: width * 0.25,
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        Center(
-            child: Text(
-          "Ebubekir Alp Elvan",
-          style: Theme.of(context).textTheme.titleLarge,
-        )),
+        Consumer<UserHelper>(builder: (context, userHelper, child) {
+          return userHelper.userModel == null
+              ? Container()
+              : Column(
+                  children: [
+                    CircleAvatar(
+                      radius: width * 0.25,
+                      backgroundImage: userHelper.userModel!.profileImageUrl == null
+                          ? null
+                          : Image.network(userHelper.userModel!.profileImageUrl!).image,
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Center(
+                        child: Text(
+                      userHelper.userModel!.name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                    )),
+                  ],
+                );
+        }),
         SizedBox(
           height: 30,
         ),
@@ -209,7 +224,15 @@ class _ProfileState extends State<Profile> {
                     offset: Offset(2, 1))
               ]),
           child: ListTile(
-            onTap: () {},
+            onTap: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              prefs.remove("token");
+              prefs.remove("userId");
+              token = null;
+
+              NavigatorHelper.pushAndRemoveUntil(destination: AuthScreen());
+            },
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             leading: Icon(
               Icons.logout_rounded,

@@ -1,5 +1,7 @@
 import 'dart:core';
 
+import 'package:ustayardim/api/api.dart';
+
 import 'repairman_model.dart';
 
 class CategoryModel{
@@ -12,12 +14,8 @@ class CategoryModel{
     _getRepairmans();
   }
 
-  _getRepairmans(){
-    repairmans = [
-      RepairmanModel(id: "fdasdasddsada", name: "Ahmet", rate: 4.5, phoneNumber:"05368564376"),
-      RepairmanModel(id: "fdasdsadasdad", name: "Berke", rate: 3.6, phoneNumber:"05436759873"),
-      RepairmanModel(id: "f321fdsadsada", name: "Davut", rate: 4.1, phoneNumber:"05517653474")
-    ];
+  _getRepairmans()async {
+    repairmans =await Api.getUstalar();
   }
 
 }

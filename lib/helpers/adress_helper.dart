@@ -4,16 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:ustayardim/models/il_model.dart';
 import 'package:ustayardim/models/ilce_model.dart';
 import 'package:http/http.dart' as http;
+import 'package:ustayardim/models/mahalle_model.dart';
 
 class AdressHelper extends ChangeNotifier{
 
   List<IlModel> iller = [];
   List<IlceModel> ilceler = [];
+  List<MahalleModel> mahalleler = [];
   
   AdressHelper(){
     _getIller();
-    iller.add(IlModel(id: 6, name: "Ankara"));
-    ilceler.add(IlceModel(id: 1022, ilId: 6, name: "Yenimahalle"));
     notifyListeners();
   }
   
@@ -29,6 +29,10 @@ class AdressHelper extends ChangeNotifier{
         newList.add(IlModel.fromJson(json: json));
       }
 
+      ilceler = [];
+
+      mahalleler = [];
+
       iller = newList;
 
       notifyListeners();
@@ -41,6 +45,7 @@ class AdressHelper extends ChangeNotifier{
   }
 
   getIlceler({required int ilId}) async {
+
     final response = await http.get(Uri.parse("http://localhost:5120/api/Adress/Ilceler/${ilId}"));
 
     if (response.statusCode == 200){
@@ -51,7 +56,30 @@ class AdressHelper extends ChangeNotifier{
         newList.add(IlceModel.fromJson(json: json));
       }
 
+      mahalleler = [];
+
       ilceler = newList;
+
+      notifyListeners();
+
+    }else{
+      print(response.statusCode);
+      print(response.body);
+    }
+  }
+
+  getMahalleler({required int ilceId}) async{
+    final response = await http.get(Uri.parse("http://localhost:5120/api/Adress/Mahalleler/${ilceId}"));
+
+    if (response.statusCode == 200){
+
+      var jsonBody = jsonDecode(response.body);
+      List<MahalleModel> newList = [];
+      for(var json in jsonBody){
+        newList.add(MahalleModel.fromJson(json: json));
+      }
+
+      mahalleler = newList;
 
       notifyListeners();
 

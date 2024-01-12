@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ustayardim/api/api.dart';
+import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/adress_helper.dart';
+import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/helpers/snack_bar_helper.dart';
+import 'package:ustayardim/helpers/user_helper.dart';
 import 'package:ustayardim/models/il_model.dart';
 import 'package:ustayardim/models/ilce_model.dart';
 
@@ -19,19 +23,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
-
   @override
   void initState() {
-    nameController.text = "Ebubekir Alp Elvan";
-    phoneNumberController.text = "+901234567890";
-    emailController.text = "info@test.com";
+    UserHelper userHelper = Provider.of<UserHelper>(context, listen: false);
+    nameController.text = userHelper.userModel!.name;
+    phoneNumberController.text = userHelper.userModel!.phoneNumber;
+    emailController.text = userHelper.userModel!.email;
     super.initState();
+  }
+
+  _update() {
+    bool valid = formKey.currentState!.validate();
+
+    if (!valid) return;
+
+    Api.update(
+        activePane: ActivePane.GENERAL,
+        name: nameController.text,
+        phoneNumber: phoneNumberController.text,
+        email: emailController.text);
+
+    NavigatorHelper.pop();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(scrolledUnderElevation: 0,backgroundColor: Colors.white,),
+      appBar: AppBar(
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.white,
+      ),
       body: Form(
         key: formKey,
         child: ListView(
@@ -41,10 +62,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               height: 20,
             ),
             Center(
-              child: CircleAvatar(
-                radius: width * 0.2,
-                backgroundImage: Image.network("http://localhost:5270/images/user.png").image,
-              ),
+              child: Consumer<UserHelper>(builder: (context, userHelper, child) {
+                return CircleAvatar(
+                  radius: width * 0.2,
+                  backgroundImage: userHelper.userModel!.profileImageUrl == null
+                      ? null
+                      : Image.network(userHelper.userModel!.profileImageUrl!).image,
+                );
+              }),
             ),
             SizedBox(
               height: 20,
@@ -220,7 +245,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             SizedBox(
               height: 20,
             ),
-            ElevatedButton(onPressed: () {}, child: Text("Kaydet")),
+            ElevatedButton(onPressed: _update, child: Text("Kaydet")),
             SizedBox(
               height: 50,
             ),

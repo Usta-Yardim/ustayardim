@@ -6,6 +6,7 @@ import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/banner_helper.dart';
 import 'package:ustayardim/helpers/bottom_navigation_helper.dart';
 import 'package:ustayardim/helpers/categories_helper.dart';
+import 'package:ustayardim/helpers/user_helper.dart';
 import 'package:ustayardim/models/banner_model.dart';
 import 'package:ustayardim/models/category_model.dart';
 import 'package:ustayardim/widgets/banner_model_widget.dart';
@@ -19,6 +20,13 @@ class ClientMainPage extends StatefulWidget {
 }
 
 class _ClientMainPageState extends State<ClientMainPage> {
+
+  @override
+  void initState() {
+    Provider.of<UserHelper>(context,listen: false).getUser();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:ustayardim/global/global.dart';
@@ -13,6 +14,7 @@ class RepairmanModalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(repairmanModel.photoUrl);
     return Container(
       width: width * 0.9,
       height: 120,
@@ -26,72 +28,98 @@ class RepairmanModalWidget extends StatelessWidget {
             width: 100,
             height: 100,
             margin: EdgeInsets.all(10),
-            decoration: BoxDecoration(color: Colors.blue, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: repairmanModel.photoUrl == null
+                ? Container()
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.network(repairmanModel.photoUrl!)),
           ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      repairmanModel.name,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: Colors.amber,
-                    ),
-                    Text(repairmanModel.rate.toStringAsFixed(1))
-                  ],
-                ),
-                Spacer(),
-                ElevatedButton(
-                    onPressed: () {
-                    },
-                    style: ElevatedButton.styleFrom(
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        minimumSize: Size.zero,
-                        backgroundColor: Colors.white,
-                        side: BorderSide(color: Colors.green),
-                        padding: EdgeInsets.all(5),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40))),
-                    child: Row(
-                      children: [
-                        Container(
-                            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.green),
-                            padding: EdgeInsets.all(5),
-                            child: Icon(
-                              Icons.call_rounded,
-                              size: 15,
-                            )),
-                        SizedBox(
-                          width: 5,
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          repairmanModel.name,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
                         ),
-                        Text(
-                          "${repairmanModel.phoneNumber}",
-                          style: TextStyle(color: Colors.green),
-                        ),
-                      ],
-                    ))
-              ],
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Builder(builder: (context) {
+                        return repairmanModel.rate == null
+                            ? Container()
+                            : Row(
+                                children: [
+                                  Icon(
+                                    Icons.star,
+                                    color: Colors.amber,
+                                  ),
+                                  Text(repairmanModel.rate!.toStringAsFixed(1)),
+                                ],
+                              );
+                      })
+                    ],
+                  ),
+                  Spacer(),
+                  ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          minimumSize: Size.zero,
+                          backgroundColor: Colors.white,
+                          side: BorderSide(color: Colors.green),
+                          padding: EdgeInsets.all(5),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40))),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                              decoration:
+                                  BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+                              padding: EdgeInsets.all(5),
+                              child: Icon(
+                                Icons.call_rounded,
+                                size: 15,
+                              )),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            "${repairmanModel.phoneNumber}",
+                            style: TextStyle(color: Colors.green),
+                          ),
+                        ],
+                      ))
+                ],
+              ),
             ),
           ),
-          Spacer(),
           Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               InkWell(onTap: () {}, child: Icon(Icons.star_border_rounded)),
               InkWell(onTap: () {}, child: Icon(Icons.bookmark_border_rounded)),
-              InkWell(onTap: () {}, child: Icon(FontAwesomeIcons.share,size: 20,)),
+              InkWell(
+                  onTap: () {},
+                  child: Icon(
+                    FontAwesomeIcons.share,
+                    size: 20,
+                  )),
             ],
           ),
-          SizedBox(width: 10,)
+          SizedBox(
+            width: 10,
+          )
         ],
       ),
     );
