@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ustayardim/api/api.dart';
@@ -5,6 +7,7 @@ import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/adress_helper.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
+import 'package:ustayardim/helpers/picker_helper.dart';
 import 'package:ustayardim/helpers/snack_bar_helper.dart';
 import 'package:ustayardim/helpers/user_helper.dart';
 import 'package:ustayardim/models/il_model.dart';
@@ -23,6 +26,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
+  ValueNotifier<File?> imageFile = ValueNotifier(null);
+
   @override
   void initState() {
     UserHelper userHelper = Provider.of<UserHelper>(context, listen: false);
@@ -38,6 +43,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (!valid) return;
 
     Api.update(
+        profileImage: imageFile.value,
         activePane: ActivePane.GENERAL,
         name: nameController.text,
         phoneNumber: phoneNumberController.text,
@@ -63,13 +69,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
             Center(
               child: Consumer<UserHelper>(builder: (context, userHelper, child) {
-                return CircleAvatar(
-                  radius: width * 0.2,
-                  backgroundImage: userHelper.userModel!.profileImageUrl == null
-                      ? null
-                      : Image.network(userHelper.userModel!.profileImageUrl!).image,
-                );
+                return ValueListenableBuilder(
+                    valueListenable: imageFile,
+                    builder: (context, image, child) {
+                      return CircleAvatar(
+                        radius: width * 0.2,
+                        backgroundImage: image != null
+                            ? Image.file(image).image
+                            : (userHelper.userModel!.profileImageUrl == null
+                                ? null
+                                : Image.network(userHelper.userModel!.profileImageUrl!).image),
+                      );
+                    });
               }),
+            ),
+            Center(
+              child: TextButton(
+                  onPressed: () async {
+                    imageFile.value = await PickerHelper.pickImage();
+                  },
+                  child: Text("Fotoğraf Seç")),
             ),
             SizedBox(
               height: 20,

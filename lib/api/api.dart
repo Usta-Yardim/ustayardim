@@ -143,6 +143,7 @@ class Api {
       String? oldPassword,
       String? newPassword,
       List<File> referanceImages = const [],
+      File? profileImage,
       required ActivePane activePane}) async {
     String activePaneString;
 
@@ -171,6 +172,12 @@ class Api {
       });
     }
 
+    String? profileImagePath ;
+
+    if (profileImage != null){
+      profileImagePath = base64Encode(profileImage.readAsBytesSync());
+    }
+
     final response = await http.put(Uri.parse("http://localhost:5120/api/Account/${userId}"),
         headers: {
           "accept": "*/*",
@@ -186,7 +193,7 @@ class Api {
             "phoneNumber": phoneNumber ?? userHelper.userModel!.phoneNumber,
             "userType": userHelper.userModel!.userType == UserType.CLIENT ? "musteri" : "usta"
           },
-          "profilImgPath": null,
+          "profilImgPath": profileImagePath,
           "ilinfo": ilModel?.toMap(),
           "ilceinfo": ilceModel?.toMap(),
           "mahalleinfo": mahalleModel?.toMap(),
@@ -202,7 +209,8 @@ class Api {
         }));
 
     if (response.statusCode == 200) {
-      SnackBarHelper.showSnackBar(content: "Veriler başarıyla güncellendi!", type: SnackBarType.SUCCESS);
+      SnackBarHelper.showSnackBar(
+          content: "Veriler başarıyla güncellendi!", type: SnackBarType.SUCCESS);
       Provider.of<UserHelper>(getContext(), listen: false).getUser();
     } else {
       print(response.body);
