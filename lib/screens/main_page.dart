@@ -1,29 +1,23 @@
-import 'package:carousel_slider/carousel_slider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:sticky_headers/sticky_headers.dart';
-import 'package:ustayardim/global/global.dart';
-import 'package:ustayardim/helpers/banner_helper.dart';
+import 'package:ustayardim/helpers/adress_helper.dart';
 import 'package:ustayardim/helpers/bottom_navigation_helper.dart';
-import 'package:ustayardim/helpers/categories_helper.dart';
 import 'package:ustayardim/helpers/user_helper.dart';
-import 'package:ustayardim/models/banner_model.dart';
-import 'package:ustayardim/models/category_model.dart';
-import 'package:ustayardim/widgets/banner_model_widget.dart';
-import 'package:ustayardim/widgets/category_model_widget.dart';
 
-class ClientMainPage extends StatefulWidget {
-  const ClientMainPage({super.key});
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
 
   @override
-  State<ClientMainPage> createState() => _ClientMainPageState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _ClientMainPageState extends State<ClientMainPage> {
+class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
     Provider.of<UserHelper>(context,listen: false).getUser();
+    Provider.of<AdressHelper>(context, listen: false);
     super.initState();
   }
 

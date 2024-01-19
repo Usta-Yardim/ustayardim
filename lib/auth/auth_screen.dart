@@ -8,7 +8,7 @@ import 'package:ustayardim/auth/signup_screen.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
-import 'package:ustayardim/screens/client/client_main_page.dart';
+import 'package:ustayardim/screens/main_page.dart';
 import 'package:ustayardim/theme/theme.dart';
 import 'package:http/http.dart' as http;
 
@@ -55,7 +55,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
       token = json["token"];
 
-      NavigatorHelper.push(destination: ClientMainPage());
+      NavigatorHelper.push(destination: MainPage());
 
       print("ok");
       print(json["token"]);
@@ -66,7 +66,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   _login() {
-    Api.login(mail: mailController.text, password: passwordController.text, userType: selectedUserType.value);
+    Api.login(mail: mailController.text, password: passwordController.text, loginUserType: selectedUserType.value);
   }
 
   Widget _buildSelectUserTypeWidget() {

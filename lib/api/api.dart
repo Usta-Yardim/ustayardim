@@ -6,19 +6,22 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
+import 'package:ustayardim/helpers/categories_helper.dart';
 import 'package:ustayardim/helpers/date_helper.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/helpers/snack_bar_helper.dart';
 import 'package:ustayardim/helpers/user_helper.dart';
+import 'package:ustayardim/models/category_model.dart';
 import 'package:ustayardim/models/il_model.dart';
 import 'package:ustayardim/models/ilce_model.dart';
 import 'package:ustayardim/models/mahalle_model.dart';
 import 'package:ustayardim/models/repairman_model.dart';
 import 'package:ustayardim/models/user_model.dart';
-import 'package:ustayardim/screens/client/client_main_page.dart';
+import 'package:ustayardim/screens/main_page.dart';
 
 class Api {
-  static login({required String mail, required String password, required UserType userType}) async {
+  static login(
+      {required String mail, required String password, required UserType loginUserType}) async {
     final response = await http.post(Uri.parse("http://localhost:5120/api/Users/login"),
         headers: {
           "Content-Type": "application/json",
@@ -26,7 +29,7 @@ class Api {
         body: jsonEncode({
           "email": mail,
           "password": password,
-          "userType": userType == UserType.CLIENT ? "musteri" : "usta",
+          "userType": loginUserType == UserType.CLIENT ? "musteri" : "usta",
           //"rememberMe": true
         }));
 
@@ -39,11 +42,13 @@ class Api {
 
       prefs.setString("token", json["token"]);
       prefs.setInt("userId", json["userId"]);
+      prefs.setString("userType", loginUserType.name);
 
       token = json["token"];
       userId = json["userId"];
+      userType = loginUserType;
 
-      NavigatorHelper.pushAndRemoveUntil(destination: ClientMainPage());
+      NavigatorHelper.pushAndRemoveUntil(destination: MainPage());
 
       print("ok");
       print(json["token"]);
@@ -115,13 +120,17 @@ class Api {
   }
 
   static Future<UserModel?> getUser() async {
-    final response =
-        await http.get(Uri.parse("http://localhost:5120/api/Account/Ustalar/${userId}"));
+    print("---------------");
+    print(userId);
+    final response = await http.get(Uri.parse(
+        "http://localhost:5120/api/Account/${userType == UserType.CLIENT ? "Musteri" : "Ustalar"}/${userId}"));
 
     UserModel? userModel;
 
     if (response.statusCode == 200) {
       var jsonBody = jsonDecode(response.body);
+
+      await Provider.of<CategoriesHelper>(getContext(),listen: false).getCategories();
 
       userModel = UserModel.fromJson(json: jsonBody);
     } else {
@@ -131,7 +140,7 @@ class Api {
     return userModel;
   }
 
-  static update(
+  static Future<bool> update(
       {String? name,
       String? phoneNumber,
       String? email,
@@ -142,6 +151,7 @@ class Api {
       MahalleModel? mahalleModel,
       String? oldPassword,
       String? newPassword,
+      CategoryModel? categoryModel,
       List<File> referanceImages = const [],
       File? profileImage,
       required ActivePane activePane}) async {
@@ -172,13 +182,15 @@ class Api {
       });
     }
 
-    String? profileImagePath ;
+    String? profileImagePath;
 
-    if (profileImage != null){
+    if (profileImage != null) {
       profileImagePath = base64Encode(profileImage.readAsBytesSync());
     }
 
-    final response = await http.put(Uri.parse("http://localhost:5120/api/Account/${userId}"),
+    final response = await http.put(
+        Uri.parse(
+            "http://localhost:5120/api/Account/${userHelper.userModel!.userType == UserType.CLIENT ? "MusteriUpdate/" : ""}${userId}"),
         headers: {
           "accept": "*/*",
           "Content-Type": "application/json",
@@ -202,18 +214,63 @@ class Api {
           "birthday":
               dateOfBirth == null ? null : DateHelper.formatApiToString(dateTime: dateOfBirth),
           "tamamlananIs": null,
+          "kategoriId":categoryModel?.id,
+          "kategoriName":categoryModel?.name,
           "referansImgPath": referanceBase64,
           "activeTabPane": activePaneString,
           "oldPassword": oldPassword,
           "newPassword": newPassword
         }));
 
+    print(response.statusCode);
+
     if (response.statusCode == 200) {
       SnackBarHelper.showSnackBar(
           content: "Veriler başarıyla güncellendi!", type: SnackBarType.SUCCESS);
       Provider.of<UserHelper>(getContext(), listen: false).getUser();
+      return true;
     } else {
+      SnackBarHelper.showSnackBar(content: response.body, type: SnackBarType.WARNING);
       print(response.body);
+      return false;
     }
+  }
+
+  static Future<List<RepairmanModel>> getCategoryRepairmans({required int id}) async {
+    final response = await http.get(Uri.parse("http://localhost:5120/api/Kategoriler/${id}"));
+
+    List<RepairmanModel> newList = [];
+
+    if (response.statusCode == 200) {
+      var jsonBody = jsonDecode(response.body);
+
+      for (var json in jsonBody) {
+        newList.add(RepairmanModel.fromJson(json: json));
+      }
+    } else {
+      var json = jsonDecode(response.body);
+      SnackBarHelper.showSnackBar(content: json["message"], type: SnackBarType.WARNING);
+    }
+
+    return newList;
+  }
+
+  static Future<List<CategoryModel>> getCategories() async {
+    final response = await http.get(Uri.parse("http://localhost:5120/api/Kategoriler"));
+
+    List<CategoryModel> newList = [];
+
+    if (response.statusCode == 200) {
+      var jsonBody = jsonDecode(response.body);
+
+      for (var json in jsonBody) {
+        newList.add(CategoryModel.fromJson(json: json));
+      }
+    } else {
+      var json = jsonDecode(response.body);
+      SnackBarHelper.showSnackBar(content: json["message"], type: SnackBarType.WARNING);
+    }
+
+    return newList;
   }
 }

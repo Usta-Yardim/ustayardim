@@ -21,7 +21,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   ValueNotifier<File?> image3 = ValueNotifier(null);
   ValueNotifier<File?> image4 = ValueNotifier(null);
 
-  _update() {
+  _update() async {
     List<File> referanceImages = [];
 
     if (image1.value != null) {
@@ -39,8 +39,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
 
     if (referanceImages.isNotEmpty) {
-      Api.update(activePane: ActivePane.GALLERY, referanceImages: referanceImages);
-      NavigatorHelper.pop();
+      bool x = await  Api.update(activePane: ActivePane.GALLERY, referanceImages: referanceImages);
+      if (x){
+        NavigatorHelper.pop();
+      }
+
     }
   }
 

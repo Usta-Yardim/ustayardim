@@ -47,10 +47,6 @@ class DateHelper {
     return "${dateTime.day} ${_months[dateTime.month]}";
   }
 
-  static int getWeek({required DateTime dateOfBirth, required DateTime dateTime}) {
-    return dateTime.difference(dateOfBirth).inDays ~/ 7;
-  }
-
   static String formatHours({required DateTime dateTime}) {
     DateFormat format = DateFormat("HH:mm");
 

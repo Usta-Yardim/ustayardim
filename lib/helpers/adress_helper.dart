@@ -21,6 +21,7 @@ class AdressHelper extends ChangeNotifier{
     
     final response = await http.get(Uri.parse("http://localhost:5120/api/Adress/Iller"));
 
+    print(response.statusCode);
     if (response.statusCode == 200){
 
       var jsonBody = jsonDecode(response.body);

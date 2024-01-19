@@ -7,11 +7,13 @@ import 'package:ustayardim/api/api.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/adress_helper.dart';
+import 'package:ustayardim/helpers/categories_helper.dart';
 import 'package:ustayardim/helpers/cupertino_picker_helper.dart';
 import 'package:ustayardim/helpers/date_helper.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/helpers/snack_bar_helper.dart';
 import 'package:ustayardim/helpers/user_helper.dart';
+import 'package:ustayardim/models/category_model.dart';
 import 'package:ustayardim/models/il_model.dart';
 import 'package:ustayardim/models/ilce_model.dart';
 import 'package:ustayardim/models/mahalle_model.dart';
@@ -28,8 +30,8 @@ class _PersonalInformationsScreenState extends State<PersonalInformationsScreen>
   ValueNotifier<IlceModel?> selectedIlce = ValueNotifier(null);
   ValueNotifier<MahalleModel?> selectedMahalle = ValueNotifier(null);
   ValueNotifier<DateTime?> selectedDate = ValueNotifier(null);
+  ValueNotifier<CategoryModel?> selectedCategory = ValueNotifier(null);
   TextEditingController aboutMeController = TextEditingController();
-
   TextEditingController dateOfBirthController = TextEditingController();
 
   @override
@@ -42,7 +44,10 @@ class _PersonalInformationsScreenState extends State<PersonalInformationsScreen>
     UserHelper userHelper = Provider.of<UserHelper>(context, listen: false);
     aboutMeController.text = userHelper.userModel!.aboutMe ?? "";
     selectedDate.value = userHelper.userModel!.birthTime;
+    selectedCategory.value = userHelper.userModel!.categoryModel;
+    print(userHelper.userModel!.birthTime);
     AdressHelper adressHelper = Provider.of<AdressHelper>(context, listen: false);
+    print(adressHelper.iller.length);
     selectedIl.value = userHelper.userModel!.ilModel == null
         ? null
         : adressHelper.iller
@@ -61,28 +66,33 @@ class _PersonalInformationsScreenState extends State<PersonalInformationsScreen>
             .firstWhere((element) => element.id == userHelper.userModel!.mahalleModel!.id);
   }
 
-  _update() {
+  _update() async {
     String? abouteMe = aboutMeController.text.isEmpty ? null : aboutMeController.text;
     DateTime? dateTime = selectedDate.value;
     IlModel? ilModel = selectedIl.value;
     IlceModel? ilceModel = selectedIlce.value;
     MahalleModel? mahalleModel = selectedMahalle.value;
+    CategoryModel? categoryModel = selectedCategory.value;
 
     if (abouteMe == null &&
         dateTime == null &&
         ilModel == null &&
         ilceModel == null &&
-        mahalleModel == null) return;
+        mahalleModel == null &&
+        categoryModel == null) return;
 
-    Api.update(
+    bool x = await Api.update(
         activePane: ActivePane.INFO,
         aboutMe: abouteMe,
         dateOfBirth: dateTime,
         ilModel: ilModel,
+        categoryModel: categoryModel,
         ilceModel: ilceModel,
         mahalleModel: mahalleModel);
 
-    NavigatorHelper.pop();
+    if (x) {
+      NavigatorHelper.pop();
+    }
   }
 
   @override
@@ -99,58 +109,108 @@ class _PersonalInformationsScreenState extends State<PersonalInformationsScreen>
           SizedBox(
             height: 20,
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  "Hakkında",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              TextField(
-                controller: aboutMeController,
-                maxLines: 3,
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  "Doğum günü",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-              ),
-              ValueListenableBuilder(
-                  valueListenable: selectedDate,
-                  builder: (context, date, child) {
-                    if (date != null) {
-                      dateOfBirthController.text = DateHelper.formatDateWithYear(dateTime: date);
-                    } else {
-                      dateOfBirthController.text = "";
-                    }
-                    return TextField(
-                      controller: dateOfBirthController,
-                      readOnly: true,
-                      onTap: () async {
-                        selectedDate.value = await CupertinoPickerHelper.showCupertinoDatePicker(
-                            shouldRestrictMaxDate: true);
-                      },
-                      maxLines: 1,
-                    );
-                  }),
-            ],
-          ),
-          SizedBox(
-            height: 10,
-          ),
+          Consumer<UserHelper>(builder: (context, userHelper, child) {
+            return userHelper.userModel!.userType == UserType.CLIENT
+                ? Container()
+                : Column(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Hakkında",
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          TextField(
+                            controller: aboutMeController,
+                            maxLines: 3,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 10),
+                            child: Text(
+                              "Doğum günü",
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
+                          ),
+                          ValueListenableBuilder(
+                              valueListenable: selectedDate,
+                              builder: (context, date, child) {
+                                if (date != null) {
+                                  dateOfBirthController.text =
+                                      DateHelper.formatDateWithYear(dateTime: date);
+                                } else {
+                                  dateOfBirthController.text = "";
+                                }
+                                return TextField(
+                                  controller: dateOfBirthController,
+                                  readOnly: true,
+                                  onTap: () async {
+                                    selectedDate.value =
+                                        await CupertinoPickerHelper.showCupertinoDatePicker(
+                                            shouldRestrictMaxDate: true);
+                                  },
+                                  maxLines: 1,
+                                );
+                              }),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10),
+                              child: Text(
+                                "Kategori",
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                            ),
+                            Consumer<CategoriesHelper>(
+                              builder: (context, categoriesHelper, child) {
+                                return ValueListenableBuilder(
+                                  valueListenable: selectedCategory,
+                                  builder: (context, selected, child) {
+                                    return DropdownButtonFormField(
+                                      value: selected,
+                                      items: categoriesHelper.categories
+                                          .map(
+                                            (e) => DropdownMenuItem(
+                                              value: e,
+                                              child: Text(e.name),
+                                            ),
+                                          )
+                                          .toList(),
+                                      onChanged: (v) {
+                                        selectedCategory.value = v;
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  );
+          }),
           Container(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

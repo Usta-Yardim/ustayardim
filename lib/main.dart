@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ustayardim/auth/auth_screen.dart';
+import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/adress_helper.dart';
 import 'package:ustayardim/helpers/banner_helper.dart';
@@ -13,7 +14,7 @@ import 'package:ustayardim/helpers/bottom_navigation_helper.dart';
 import 'package:ustayardim/helpers/categories_helper.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/helpers/user_helper.dart';
-import 'package:ustayardim/screens/client/client_main_page.dart';
+import 'package:ustayardim/screens/main_page.dart';
 import 'package:ustayardim/theme/theme.dart';
 
 void main() {
@@ -72,10 +73,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
     token = pref.getString("token");
     userId = pref.getInt("userId");
+    String? type = pref.getString("userType");
+    if (type != null){
+      userType = UserType.values.byName(type);
+    }
+
 
     Timer(const Duration(seconds: 3), () {
       if (token != null) {
-        NavigatorHelper.push(destination: ClientMainPage());
+        NavigatorHelper.push(destination: MainPage());
       } else {
         NavigatorHelper.push(destination: AuthScreen());
       }

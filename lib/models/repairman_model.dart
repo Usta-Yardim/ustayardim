@@ -12,6 +12,7 @@ class RepairmanModel {
   final MahalleModel? mahalleModel;
   final String? aboutMe;
   final String? photoUrl;
+  final List<String> referanceImages;
 
   RepairmanModel(
       {required this.id,
@@ -22,16 +23,18 @@ class RepairmanModel {
       required this.aboutMe,
       required this.ilModel,
       required this.ilceModel,
-      required this.mahalleModel});
+      required this.mahalleModel,
+      required this.referanceImages});
 
   factory RepairmanModel.fromJson({required dynamic json}) {
     return RepairmanModel(
         id: json["userId"],
         name: json["user"]["fullName"],
-        rate: json["puan"],
+        rate: double.parse(json["puan"].toString()),
         phoneNumber: json["user"]["phoneNumber"],
         photoUrl: json["profilImgPath"],
         aboutMe: json["hakkinda"],
+        referanceImages: (json["referansImgPath"] as List<dynamic>).map((e) => e.toString()).toList(),
         ilModel: json["ilinfo"] == null ? null : IlModel.fromJson(json: json["ilinfo"]),
         ilceModel: json["ilceinfo"] == null ? null : IlceModel.fromJson(json: json["ilceinfo"]),
         mahalleModel:

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
 import 'package:ustayardim/models/category_model.dart';
-import 'package:ustayardim/screens/client/category_repairmans_screen.dart';
+import 'package:ustayardim/screens/category_repairmans_screen.dart';
 
 class CategoryModelWidget extends StatelessWidget {
   const CategoryModelWidget({super.key, required this.categoryModel});
@@ -32,7 +32,7 @@ class CategoryModelWidget extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.asset(
+              child: Image.network(
                 categoryModel.photoUrl,
                 /*loadingBuilder: (context, child, event) {
                   if (event == null) {

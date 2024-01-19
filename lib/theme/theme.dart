@@ -10,6 +10,7 @@ ThemeData mainThemeData = ThemeData(
     selectedItemColor: Color(0xff393e41),
     unselectedItemColor: Colors.grey.withOpacity(0.7),
   ),
+  appBarTheme: AppBarTheme(backgroundColor: Colors.white),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(

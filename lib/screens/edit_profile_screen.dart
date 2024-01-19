@@ -37,19 +37,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
   }
 
-  _update() {
+  _update() async {
     bool valid = formKey.currentState!.validate();
 
     if (!valid) return;
 
-    Api.update(
+    bool x = await Api.update(
         profileImage: imageFile.value,
         activePane: ActivePane.GENERAL,
         name: nameController.text,
         phoneNumber: phoneNumberController.text,
         email: emailController.text);
 
-    NavigatorHelper.pop();
+    if (x){
+      NavigatorHelper.pop();
+    }
+
   }
 
   @override
@@ -68,8 +71,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               height: 20,
             ),
             Center(
-              child: Consumer<UserHelper>(builder: (context, userHelper, child) {
-                return ValueListenableBuilder(
+              child: Consumer<UserHelper>(
+                builder: (context, userHelper, child) {
+                  return ValueListenableBuilder(
                     valueListenable: imageFile,
                     builder: (context, image, child) {
                       return CircleAvatar(
@@ -80,8 +84,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ? null
                                 : Image.network(userHelper.userModel!.profileImageUrl!).image),
                       );
-                    });
-              }),
+                    },
+                  );
+                },
+              ),
             ),
             Center(
               child: TextButton(

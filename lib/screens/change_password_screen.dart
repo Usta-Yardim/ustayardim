@@ -17,14 +17,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   TextEditingController newPasswordController = TextEditingController();
   TextEditingController newPasswordAgainController = TextEditingController();
 
-  _update(){
-    if(newPasswordController.text != newPasswordAgainController.text){
-      SnackBarHelper.showSnackBar(content: "Yeni şifre tekrarı ile aynı olmalı.", type: SnackBarType.WARNING);
+  _update() async {
+    if (newPasswordController.text != newPasswordAgainController.text) {
+      SnackBarHelper.showSnackBar(
+          content: "Yeni şifre tekrarı ile aynı olmalı.", type: SnackBarType.WARNING);
       return;
     }
 
-    Api.update(activePane: ActivePane.CHANGE_PASSWORD,oldPassword: oldPasswordController.text,newPassword: newPasswordController.text);
-    NavigatorHelper.pop();
+    bool x = await Api.update(
+        activePane: ActivePane.CHANGE_PASSWORD,
+        oldPassword: oldPasswordController.text,
+        newPassword: newPasswordController.text);
+
+    if (x) {
+      NavigatorHelper.pop();
+    }
   }
 
   @override
@@ -38,7 +45,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: width * 0.05),
         children: [
-          SizedBox(height: 20,),
+          SizedBox(
+            height: 20,
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

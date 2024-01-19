@@ -8,7 +8,7 @@ import 'package:ustayardim/api/api.dart';
 import 'package:ustayardim/enums/enums.dart';
 import 'package:ustayardim/global/global.dart';
 import 'package:ustayardim/helpers/navigator_helper.dart';
-import 'package:ustayardim/screens/client/client_main_page.dart';
+import 'package:ustayardim/screens/main_page.dart';
 import 'package:ustayardim/theme/theme.dart';
 
 class SignupScreen extends StatefulWidget {

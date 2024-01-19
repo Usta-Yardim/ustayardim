@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:ustayardim/enums/enums.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 late double width;
@@ -7,6 +8,7 @@ late EdgeInsets padding;
 
 String? token;
 int? userId;
+UserType? userType;
 
 BuildContext getContext(){
   return navigatorKey.currentState!.context;
